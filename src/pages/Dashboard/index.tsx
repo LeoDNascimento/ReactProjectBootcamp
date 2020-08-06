@@ -1,64 +1,65 @@
-import React from 'react';
+/* eslint-disable camelcase */
+import React, { useState, FormEvent } from 'react';
 import { FiChevronRight } from 'react-icons/fi';
+import api from '../../services/api';
 
 import logoImg from '../../assets/logo_Explorer.svg';
 
 import { Title, Form, Repositories } from './styles';
 
+interface Repository {
+  full_name: string;
+  description: string;
+  owner: {
+    login: string;
+    avatar_url: string;
+  };
+}
+
 const Dashboard: React.FC = () => {
+  const [newRepo, setNewRepo] = useState('');
+  const [repositories, setRepositories] = useState<Repository[]>([]);
+
+  async function handleAddRepository(
+    event: FormEvent<HTMLFormElement>,
+  ): Promise<void> {
+    event.preventDefault();
+
+    const response = await api.get<Repository>(`repos/${newRepo}`);
+    const repository = response.data;
+
+    setRepositories([...repositories, repository]);
+
+    setNewRepo('');
+  }
   return (
     <>
       <img src={logoImg} alt="Github Explorer" />
       <Title>Explore repositórios no Github</Title>
 
-      <Form>
-        <input placeholder="Digite o nome do repositório" />
+      <Form onSubmit={handleAddRepository}>
+        <input
+          value={newRepo}
+          onChange={e => setNewRepo(e.target.value)}
+          placeholder="Digite o nome do repositório"
+        />
         <button type="submit">Pesquisar</button>
       </Form>
 
       <Repositories>
-        <a href="teste">
-          <img
-            src="https://avatars3.githubusercontent.com/u/44445499?s=400&u=bc34ba63a450653dae8a73965c9045c77b180a48&v=4"
-            alt="Leo Nascimento"
-          />
-          <div>
-            <strong>LeoDNascimento/Template_ReactProjects</strong>
-            <p>
-              A template for my react projects with editor config, ESlint and
-              Prettier configured
-            </p>
-          </div>
-          <FiChevronRight size={20} />
-        </a>
-        <a href="teste">
-          <img
-            src="https://avatars3.githubusercontent.com/u/44445499?s=400&u=bc34ba63a450653dae8a73965c9045c77b180a48&v=4"
-            alt="Leo Nascimento"
-          />
-          <div>
-            <strong>LeoDNascimento/Template_ReactProjects</strong>
-            <p>
-              A template for my react projects with editor config, ESlint and
-              Prettier configured
-            </p>
-          </div>
-          <FiChevronRight size={20} />
-        </a>
-        <a href="teste">
-          <img
-            src="https://avatars3.githubusercontent.com/u/44445499?s=400&u=bc34ba63a450653dae8a73965c9045c77b180a48&v=4"
-            alt="Leo Nascimento"
-          />
-          <div>
-            <strong>LeoDNascimento/Template_ReactProjects</strong>
-            <p>
-              A template for my react projects with editor config, ESlint and
-              Prettier configured
-            </p>
-          </div>
-          <FiChevronRight size={20} />
-        </a>
+        {repositories.map(repository => (
+          <a key={repository.full_name} href="teste">
+            <img
+              src={repository.owner.avatar_url}
+              alt={repository.owner.login}
+            />
+            <div>
+              <strong>{repository.full_name}</strong>
+              <p>{repository.description}</p>
+            </div>
+            <FiChevronRight size={20} />
+          </a>
+        ))}
       </Repositories>
     </>
   );
