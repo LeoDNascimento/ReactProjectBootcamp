@@ -9,7 +9,7 @@ import { Title } from './styles';
 
 const Dashboard: React.FC = () => {
   async function handleAddRepository(): Promise<void> {
-    const response = await api.post('/user/login', {
+    const response = await api.post('/user/login/', {
       username: 'rafael',
       password: 'testing123',
     });
